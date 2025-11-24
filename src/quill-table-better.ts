@@ -88,11 +88,6 @@ class Table extends Module {
     }, true);
   }
 
-
-  static updateTest() {
-    console.log('updateTest');
-  }
-
   constructor(quill: Quill, options: Options) {
     super(quill, options);
     quill.clipboard.addMatcher('td, th', matchTableCell);

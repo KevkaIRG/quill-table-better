@@ -151,7 +151,7 @@ class TableCell extends Container {
       }
       return formats;
     }, {});
-    if (this.hasColgroup(domNode)) {
+    if (this.hasColgroup(domNode) && false) {
       delete formats['width'];
       if (formats['style']) {
         (formats['style'] = formats['style'].replace(/width.*?;/g, ''));
@@ -423,6 +423,7 @@ class TableContainer extends Container {
   static blotName = 'table-container';
   static defaultClassName = 'ql-table-better';
   static tagName = 'TABLE';
+  useDimension = true;
 
   children: LinkedList<TableBody | TableTemporary | TableColgroup>;
   
@@ -699,6 +700,10 @@ class TableContainer extends Container {
     cell.appendChild(cellBlock);
     row.appendChild(cell);
     cellBlock.optimize();
+  }
+
+  setUseDimension(dimension: boolean) {
+    this.useDimension = dimension;
   }
 
   isPercent() {

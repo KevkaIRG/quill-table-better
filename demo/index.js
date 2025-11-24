@@ -29,7 +29,6 @@ const toolbarOptions = [
     ['table-better']
 ];
 
-QuillTableBetter.updateTest();
 const options = {
         theme: 'snow',
         modules: {

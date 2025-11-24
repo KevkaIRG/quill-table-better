@@ -598,6 +598,7 @@ class TablePropertiesForm {
     const tableBlot = Quill.find(table) as TableContainer;
     const colgroup = tableBlot.colgroup();
     const isPercent = tableBlot.isPercent();
+    tableBlot.setUseDimension(this.useDimension ?? true);
     const attrs = this.getDiffProperties();
     const floatW = parseFloat(attrs['width']);
     const width =
