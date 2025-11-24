@@ -50,19 +50,45 @@ import {
   TABLE_PROPERTIES
 } from '../config';
 
+interface ColorList {
+  value: string;
+  describe: string;
+}
+
 interface Children {
   [propName: string]: {
     content: string;
+    color?: ColorList[],
     handler: () => void;
     divider?: boolean;
     createSwitch?: boolean;
   }
 }
 
+const COLOR_LIST: ColorList[] = [
+  { value: '#000000', describe: 'black' },
+  { value: '#4d4d4d', describe: 'dimGrey' },
+  { value: '#808080', describe: 'grey' },
+  { value: '#e6e6e6', describe: 'lightGrey' },
+  { value: '#ffffff', describe: 'white' },
+  { value: '#ff0000', describe: 'red' },
+  { value: '#ffa500', describe: 'orange' },
+  { value: '#ffff00', describe: 'yellow' },
+  { value: '#99e64d', describe: 'lightGreen' },
+  { value: '#008000', describe: 'green' },
+  { value: '#7fffd4', describe: 'aquamarine' },
+  { value: '#40e0d0', describe: 'turquoise' },
+  { value: '#4d99e6', describe: 'lightBlue' },
+  { value: '#0000ff', describe: 'blue' },
+  { value: '#800080', describe: 'purple' }
+];
+
 interface Menu {
   content: string;
   icon: string;
   handler: (list: HTMLUListElement, tooltip: HTMLDivElement) => void;
+  color?: ColorList[];
+  useDimension?: boolean;
   children?: Children;
 }
 
@@ -200,13 +226,14 @@ function getMenusConfig(useLanguage: UseLanguageHandler, menus?: string[]): Menu
           'align': this.getTableAlignment(this.table)
         };
         this.toggleAttribute(list, tooltip);
-        this.tablePropertiesForm = new TablePropertiesForm(this, { attribute, type: 'table' });
+        this.tablePropertiesForm = new TablePropertiesForm(this, { attribute, type: 'table' }, this.getColorList('table'), this.getUseDimension('table'));
         this.hideMenus();
       }
     },
     cell: {
       content: useLanguage('cellProps'),
       icon: cellIcon,
+      color: [],
       handler(list: HTMLUListElement, tooltip: HTMLDivElement) {
         const { selectedTds } = this.tableBetter.cellSelection;
         const attribute =
@@ -214,7 +241,7 @@ function getMenusConfig(useLanguage: UseLanguageHandler, menus?: string[]): Menu
             ? this.getSelectedTdsAttrs(selectedTds)
             : this.getSelectedTdAttrs(selectedTds[0]);
         this.toggleAttribute(list, tooltip);
-        this.tablePropertiesForm = new TablePropertiesForm(this, { attribute, type: 'cell' });
+        this.tablePropertiesForm = new TablePropertiesForm(this, { attribute, type: 'cell' }, this.getColorList('cell'), this.getUseDimension('cell'));
         this.hideMenus();
       }
     },
@@ -281,6 +308,9 @@ class TableMenus {
   tableBetter: QuillTableBetter;
   tablePropertiesForm: TablePropertiesForm;
   tableHeaderRow: HTMLElement | null;
+  colors: { [key: string]: ColorList[] };
+  useDimension: {[key: string]: boolean};
+
   constructor(quill: Quill, tableBetter?: QuillTableBetter) {
     this.quill = quill;
     this.table = null;
@@ -290,8 +320,25 @@ class TableMenus {
     this.tableBetter = tableBetter;
     this.tablePropertiesForm = null;
     this.tableHeaderRow = null;
+    this.colors = {};
+    this.useDimension = {};
     this.quill.root.addEventListener('click', this.handleClick.bind(this));
     this.root = this.createMenus();
+  }
+
+  getColorList(identifier: string = 'cell'): ColorList[] {
+    return this.colors[identifier] || [];
+  }
+
+  setColorList(identifier: string = 'cell', colors: ColorList[]): void {
+    this.colors[identifier] = colors;
+  }
+  getUseDimension(identifier: string = 'cell'): boolean {
+    return this.useDimension[identifier] ?? true;
+  }
+
+  setUseDimension(identifier: string = 'cell', useDimension: boolean): void {
+    this.useDimension[identifier] = useDimension;
   }
 
   convertToRow() {
@@ -382,7 +429,7 @@ class TableMenus {
     if (!children) return null;
     const container = document.createElement('ul');
     for (const [, child] of Object.entries(children)) {
-      const { content, divider, createSwitch, handler } = child;
+      const { content, divider, createSwitch, handler, color } = child;
       const list = document.createElement('li');
       if (createSwitch) {
         list.classList.add('ql-table-header-row');
@@ -425,7 +472,19 @@ class TableMenus {
     const container = document.createElement('div');
     container.classList.add('ql-table-menus-container', 'ql-hidden');
     for (const [category, val] of Object.entries(getMenusConfig(useLanguage, menus))) {
-      const { content, icon, children, handler } = val;
+      const { content, icon, children, handler, color, useDimension } = val;
+
+      if (useDimension !== undefined) {
+        this.setUseDimension(category, useDimension);
+      } else {
+        this.setUseDimension(category, true);
+      }
+      if (color !== undefined) {
+        this.extendTableColor(category, color, true);
+      } else {
+        this.extendTableColor(category, COLOR_LIST);
+      }
+
       const list = this.createList(children);
       const tooltip = createTooltip(content);
       const menu = this.createMenu(icon, downIcon, !!children, category);
@@ -437,6 +496,46 @@ class TableMenus {
     this.quill.container.appendChild(container);
     return container;
   }
+
+  extendTableColor(identifier: string, orgColor: ColorList[], custom: boolean = false) {
+    // const [tableBetter] = this;
+    const options = this.tableBetter.options;
+    const colorRemove = (options as any)?.colorRemove ?? false;
+    const colorReplace = (options as any)?.colorReplace ?? false;
+    const colorExtend = (options as any)?.colorExtend ?? false;
+    const color = (options as any)?.color ?? false;
+    // const { colorRemove, colorReplace, colorExtend, color } = options;
+
+    const optionsSelection = (colorReplace ? 1 : 0) + (colorExtend ? 1 : 0) + (colorRemove ? 1 : 0);
+
+    this.setColorList(identifier, orgColor);
+    if (!color) {
+      return;
+    }
+    if (!custom && color && optionsSelection === 0) {
+      this.setColorList(identifier, color);
+      return;
+    }
+    if (optionsSelection !== 1) {
+      return;
+    }
+
+    if (colorRemove) {
+      const saveColors: ColorList[] = [];
+      Object.values(color).forEach((key: ColorList) => {
+        this.colors[identifier]?.forEach(item => {
+          if (item.value === key.value || item.describe === key.value || item.value === key.describe || item.describe === key.describe) return;
+          saveColors.push({value: item.value, describe: item.describe});
+        })
+      });
+      this.setColorList(identifier, saveColors)
+    } else if (colorReplace) {
+      this.setColorList(identifier, color);
+    } else if (colorExtend) {
+      this.setColorList(identifier, [...this.colors[identifier], ...color]);
+    }
+  }
+
 
   createSwitch(content: string) {
     const fragment = document.createDocumentFragment();

@@ -36,12 +36,18 @@ import { getCellId, getCorrectCellBlot } from './utils';
 import TableToolbar from './modules/toolbar';
 import TableClipboard from './modules/clipboard';
 
+interface ColorList {
+  value: string;
+  describe: string;
+}
+
 interface Options {
   language?: string | {
     name: string;
     content: Props;
   }
   menus?: string[]
+  color?: ColorList[],
   toolbarButtons?: {
     whiteList?: string[];
     singleWhiteList?: string[];
@@ -81,7 +87,12 @@ class Table extends Module {
       'modules/clipboard': TableClipboard
     }, true);
   }
-  
+
+
+  static updateTest() {
+    console.log('updateTest');
+  }
+
   constructor(quill: Quill, options: Options) {
     super(quill, options);
     quill.clipboard.addMatcher('td, th', matchTableCell);

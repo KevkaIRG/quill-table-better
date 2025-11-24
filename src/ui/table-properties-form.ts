@@ -94,13 +94,38 @@ class TablePropertiesForm {
   borderForm: HTMLElement[];
   saveButton: HTMLButtonElement;
   form: HTMLDivElement;
-  constructor(tableMenus: TableMenus, options?: Options) {
+  colorList: ColorList[] = COLOR_LIST;
+  colorParent: ColorList[] = COLOR_LIST;
+  useDimension: boolean;
+  constructor(tableMenus: TableMenus, options?: Options, color?: ColorList[], useDimension?: boolean) {
     this.tableMenus = tableMenus;
     this.options = options;
     this.attrs = { ...options.attribute };
+    this.colorList = this.buildColorListFromOptions(color);
+    this.updateColorList();
     this.borderForm = [];
     this.saveButton = null;
+    this.useDimension = useDimension ?? false;
     this.form = this.createPropertiesForm(options);
+  }
+
+  buildColorListFromOptions(color: ColorList[]) {
+    if (!color && !this.buildColorListFromParent()) return COLOR_LIST;
+    if (!color) return COLOR_LIST;
+    return color;
+  }
+
+  updateColorList() {
+    this.colorList.filter((item) => {
+      return isValidColor(item.describe);
+    });
+  }
+
+  buildColorListFromParent() {
+    if (this.tableMenus && this.tableMenus.tableBetter && this.tableMenus.tableBetter.options && this.tableMenus.tableBetter.options.color) {
+      return this.tableMenus.tableBetter.options.color;
+    }
+    return false;
   }
 
   checkBtnsAction(status: string) {
@@ -185,7 +210,7 @@ class TablePropertiesForm {
     const container = document.createElement('ul');
     const fragment = document.createDocumentFragment();
     container.classList.add('color-list');
-    for (const { value, describe } of COLOR_LIST) {
+    for (const { value, describe } of this.colorList) {
       const li = document.createElement('li');
       const tooltip = createTooltip(useLanguage(describe));
       li.setAttribute('data-color', value);
@@ -386,9 +411,12 @@ class TablePropertiesForm {
   }
 
   createProperty(property: Properties) {
-    const { content, children } = property;
     const useLanguage = this.getUseLanguage();
+    const { content, children } = property;
     const container = document.createElement('div');
+    if (!this.useDimension && content === useLanguage('dims')) {
+      return container;
+    }
     const label = document.createElement('label');
     label.innerText = content;
     label.classList.add('ql-table-dropdown-label');
@@ -500,12 +528,20 @@ class TablePropertiesForm {
   getDiffProperties() {
     const change = this.attrs;
     const old = this.options.attribute;
+
     return Object.keys(change).reduce((attrs: Props, key) => {
+
+
       if (change[key] !== old[key]) {
-        attrs[key] =
-          isDimensions(key)
-            ? addDimensionsUnit(change[key])
-            : change[key];
+        if (isDimensions(key) && this.useDimension) {
+          attrs[key] = addDimensionsUnit(change[key]);
+        } else if(!isDimensions(key)) {
+          attrs[key] = change[key];
+        }
+        // attrs[key] =
+        //   isDimensions(key)
+        //     ? addDimensionsUnit(change[key])
+        //     : change[key];
       }
       return attrs;
     }, {});
