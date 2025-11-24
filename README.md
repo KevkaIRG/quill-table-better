@@ -182,6 +182,62 @@ In addition, the `menus` supports customization:
 }
 ```
 
+### Additional Changes
+There are additional changes to manipulate the structure like removing dimension or set custom colors.
+**useDimension**
+The use Dimension will remove the dimension manipulation for width or height
+```JavaScript
+'table-better': {
+  menus: [
+    { name: 'cell', useDimension: false },
+    { name: 'row', icon: '<svg></svg>' },
+  ]
+}
+```
+**color**
+The color is a more bigger change. This will individually set the use color for cells or tables. 
+As example, the following code would insert the three custom colors to the cell overlay and remove the others. The colors in table would not be changed.
+```JavaScript
+'table-better': {
+  menus: [{
+    'content': 'cell',
+    'name': 'cell',
+    'color': [
+      {value: '#000000', describe: 'black'},
+      {value: '#4d4d4d', describe: 'dimGrey'},
+      {value: '#808080', describe: 'grey'},
+    ],
+  }, 'table'],
+}
+```
+
+The colors could also be inserted into the main tab, outside of menus. In the following code, there are 3 colors in the cell and only 1 in table.
+```JavaScript
+'table-better': {
+  toolbarTable: true,
+          color: [{value: '#000000', describe: 'black'}],
+          menus: [{
+    'content': 'cell',
+    'name': 'cell',
+    'color': [
+      {value: '#000000', describe: 'black'},
+      {value: '#4d4d4d', describe: 'dimGrey'},
+      {value: '#808080', describe: 'grey'},
+    ],
+  }, 'table'],
+},
+```
+It's also possible to add, remove or replace colors in overlays. Please note that only one color extension can be active at any given time.
+```JavaScript
+'table-better': {
+  toolbarTable: true,
+  color: [{value: '#000000', describe: 'black'}],
+  colorRemove: true,
+  colorReplace: false,
+  colorExtend: false,
+},
+```
+
 ### toolbarTable
 `toolbarTable` is used to add a button to insert a table on the toolbar (true or false).  
 And `table-better` needs to be added to toolbarOptions, for example:
