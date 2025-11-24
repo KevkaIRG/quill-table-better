@@ -47,7 +47,7 @@ const options = {
                         {value: '#808080', describe: 'grey'},
                     ],
                     'useDimension': false,
-                }, 'table'],
+                }, {name:'table', 'useDimension': false}],
             },
             keyboard: {
                 bindings: QuillTableBetter.keyboardBindings

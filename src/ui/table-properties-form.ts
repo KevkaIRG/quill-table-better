@@ -637,7 +637,7 @@ class TablePropertiesForm {
       newSelectedTds.push(parent.domNode);
     }
     this.tableMenus.tableBetter.cellSelection.setSelectedTds(newSelectedTds);
-    if (!isPercent) this.updateTableWidth(table, tableBlot, isPercent);
+    if (!isPercent && this.useDimension) this.updateTableWidth(table, tableBlot, isPercent);
   }
 
   saveTableAction() {
