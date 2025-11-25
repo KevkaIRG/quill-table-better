@@ -499,7 +499,7 @@ class TableMenus {
             } else {
                 this.setUseDimension(category, true);
             }
-            if (color !== undefined) {
+            if (color !== undefined && color.length > 0) {
                 this.extendTableColor(category, color, true);
             } else {
                 this.extendTableColor(category, COLOR_LIST);

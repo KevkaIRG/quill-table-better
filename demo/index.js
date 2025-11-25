@@ -37,17 +37,7 @@ const options = {
             'table-better': {
                 width: '600px',
                 toolbarTable: true,
-                color: [{value: '#000000', describe: 'black'}],
-                menus: [{
-                    'content': 'cell',
-                    'name': 'cell',
-                    'color': [
-                        {value: '#000000', describe: 'black'},
-                        {value: '#4d4d4d', describe: 'dimGrey'},
-                        {value: '#808080', describe: 'grey'},
-                    ],
-                    'useDimension': false,
-                }, {name:'table', 'useDimension': false}],
+                menus: ['cell'],
             },
             keyboard: {
                 bindings: QuillTableBetter.keyboardBindings
