@@ -777,8 +777,6 @@ class TablePropertiesForm {
     const boundingBox = this.getBoundingBoxMeridian();
     const screenHeight = window.screen.availHeight;
     const isTooltipBottom = (screenHeight / 2) > boundingBox.y;
-    const { viewHeight } = this.getViewportSize();
-    console.log(isTooltipBottom, screenHeight / 2 , boundingBox.y);
     let correctTop = (boundingBox.bottom + 10);
     if (isTooltipBottom) {
       container.classList.remove('ql-table-triangle-up');
@@ -859,8 +857,7 @@ class TablePropertiesForm {
     const { height, width } = container.getBoundingClientRect();
 
     const selectionBounds = this.getBoundingBoxMeridian();
-    console.log(selectionBounds)
-    const { top, left, right, bottom } = this.getComputeBounds(type);
+    // const { top, left, right, bottom } = this.getComputeBounds(type);
     let boundingBox: BoundingBoxRect = this.getBoundingBoxByComputeBounds(type);
     let correctLeft = this.getCorrectLeft(container, containerBounds, boundingBox, width);
     let correctTop = this.getCorrectTop(container, containerBounds, height);
