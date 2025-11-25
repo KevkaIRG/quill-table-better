@@ -2,6 +2,17 @@ import Quill from 'quill';
 import type { CorrectBound, Props, QuillTableBetter, TableCellMap, TableColgroup } from '../types';
 import { TableCell, TableRow } from '../formats/table';
 import TablePropertiesForm from './table-properties-form';
+interface BoundingBoxRect {
+    isBoundingRect: boolean;
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+}
 interface ColorList {
     value: string;
     describe: string;
@@ -90,6 +101,9 @@ declare class TableMenus {
     toggleAttribute(list: HTMLUListElement, tooltip: HTMLDivElement, e?: PointerEvent): void;
     toggleHeaderRow(): void;
     toggleHeaderRowSwitch(value?: string): void;
+    getCorrectLeft(containerBounds: CorrectBound, boundingBox: BoundingBoxRect, width: number): number;
+    getCorrectTop(tableBounds: CorrectBound, containerBounds: CorrectBound, boundingBox: BoundingBoxRect, computedStyle: CSSStyleDeclaration, height: number): number;
+    getBoundingBoxMeridian(): BoundingBoxRect;
     updateMenus(table?: HTMLElement): void;
     updateScroll(scroll: boolean): void;
     updateTable(table: HTMLElement): void;

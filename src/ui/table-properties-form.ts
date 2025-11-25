@@ -758,6 +758,8 @@ class TablePropertiesForm {
     const { viewHeight } = this.getViewportSize();
     let correctTop = bottom + 10;
     let correctLeft = (left + right - width) >> 1;
+
+    console.log('BLA')
     if (correctTop + containerBounds.top + height > viewHeight) {
       correctTop = top - height - 10;
       if (correctTop < 0) {

@@ -37,7 +37,6 @@ declare class Table extends Module {
         [propName: string]: BindingObject;
     };
     static register(): void;
-    static updateTest(): void;
     constructor(quill: Quill, options: Options);
     clearHistorySelected(): void;
     deleteTable(): void;

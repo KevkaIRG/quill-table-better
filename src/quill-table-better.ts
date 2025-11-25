@@ -231,7 +231,7 @@ class Table extends Module {
     const range = this.quill.getSelection(true);
     if (range == null) return;
     if (this.isTable(range)) return;
-    const style = `width: 100%`;
+    const style = `width: 600px`;
     const formats = this.quill.getFormat(range.index - 1);
     const [, offset] = this.quill.getLine(range.index);
     const isExtra = !!formats[TableCellBlock.blotName] || offset !== 0;

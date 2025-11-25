@@ -35,6 +35,7 @@ const options = {
             toolbar: toolbarOptions,
             table: false,
             'table-better': {
+                width: '600px',
                 toolbarTable: true,
                 color: [{value: '#000000', describe: 'black'}],
                 menus: [{

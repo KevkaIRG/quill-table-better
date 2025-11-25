@@ -151,7 +151,7 @@ class TableCell extends Container {
       }
       return formats;
     }, {});
-    if (this.hasColgroup(domNode) && false) {
+    if (this.hasColgroup(domNode)) {
       delete formats['width'];
       if (formats['style']) {
         (formats['style'] = formats['style'].replace(/width.*?;/g, ''));
