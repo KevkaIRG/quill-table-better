@@ -102,7 +102,7 @@ declare class TableMenus {
     toggleHeaderRow(): void;
     toggleHeaderRowSwitch(value?: string): void;
     getCorrectLeft(containerBounds: CorrectBound, boundingBox: BoundingBoxRect, width: number): number;
-    getCorrectTop(tableBounds: CorrectBound, containerBounds: CorrectBound, boundingBox: BoundingBoxRect, computedStyle: CSSStyleDeclaration, height: number): number;
+    getCorrectTop(boundingBox: BoundingBoxRect, computedStyle: CSSStyleDeclaration, height: number): number;
     getBoundingBoxMeridian(): BoundingBoxRect;
     updateMenus(table?: HTMLElement): void;
     updateScroll(scroll: boolean): void;

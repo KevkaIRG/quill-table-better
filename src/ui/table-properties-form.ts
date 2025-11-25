@@ -1,5 +1,6 @@
 import Quill from 'quill';
 import type {
+  CorrectBound,
   Props,
   TableCell,
   TableCellBlock,
@@ -30,6 +31,18 @@ import {
 } from '../utils';
 import { ListContainer } from '../formats/list';
 import iro from '@jaames/iro';
+
+interface BoundingBoxRect {
+  isBoundingRect: boolean;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
 
 interface Child {
   category: string;
@@ -748,38 +761,136 @@ class TablePropertiesForm {
       if (!wrappers.length) this.setSaveButtonDisabled(false);
     }
   }
+  getCorrectLeft(container: HTMLElement, containerBounds: CorrectBound, boundingBox: BoundingBoxRect, width: number) {
+    let correctLeft = (boundingBox.left + boundingBox.right - width) >> 1;
+    if (correctLeft < containerBounds.left) {
+      correctLeft = 0;
+      // container.classList.add('ql-table-triangle-none');
+    } else if (correctLeft + width > containerBounds.right) {
+      correctLeft = containerBounds.right - width;
+      container.classList.remove('ql-table-triangle-none');
+    }
+    return correctLeft;
+  }
+
+  getCorrectTop(container: HTMLElement, containerBounds: CorrectBound, height: number) {
+    const boundingBox = this.getBoundingBoxMeridian();
+    const screenHeight = window.screen.availHeight;
+    const isTooltipBottom = (screenHeight / 2) > boundingBox.y;
+    const { viewHeight } = this.getViewportSize();
+    console.log(isTooltipBottom, screenHeight / 2 , boundingBox.y);
+    let correctTop = (boundingBox.bottom + 10);
+    if (isTooltipBottom) {
+      container.classList.remove('ql-table-triangle-up');
+      container.classList.add('ql-table-triangle-down');
+    } else {
+      correctTop = boundingBox.top - height - 10;
+
+      container.classList.add('ql-table-triangle-up');
+      container.classList.remove('ql-table-triangle-down');
+    }
+    return correctTop;
+  }
+
+  getBoundingBoxMeridian() {
+    const boundingBox: BoundingBoxRect = {
+      isBoundingRect: false,
+      left: Number.MAX_SAFE_INTEGER,
+      right: 0,
+      bottom: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+    }
+    if (!this.tableMenus || !this.tableMenus.tableBetter || !this.tableMenus.tableBetter.cellSelection || !this.tableMenus.tableBetter.cellSelection.selectedTds || this.tableMenus.tableBetter.cellSelection.selectedTds.length === 0) {
+      return boundingBox;
+    }
+    const selectedTds = this.tableMenus.tableBetter.cellSelection.selectedTds;
+    boundingBox.isBoundingRect = true;
+    if (selectedTds.length === 1) {
+      const selectionBounds = getCorrectBounds(selectedTds[0], this.tableMenus.quill.container);
+      boundingBox.left = selectionBounds.left;
+      boundingBox.right = selectionBounds.right;
+      boundingBox.bottom = selectionBounds.bottom;
+      boundingBox.top = selectionBounds.top;
+      boundingBox.width = selectionBounds.width;
+      boundingBox.height = selectionBounds.height;
+      boundingBox.x = selectedTds[0].getBoundingClientRect().x;
+      boundingBox.y = selectedTds[0].getBoundingClientRect().y;
+    } else {
+      selectedTds.forEach((td) => {
+        const rect = getCorrectBounds(td, this.tableMenus.quill.container);
+        boundingBox.left = Math.min(boundingBox.left, rect.left);
+        boundingBox.right = Math.max(boundingBox.right, rect.right);
+        boundingBox.bottom = Math.max(boundingBox.bottom, rect.bottom);
+        boundingBox.top = boundingBox.top === 0 ? rect.top : Math.min(boundingBox.top, rect.top);
+      });
+      boundingBox.x = selectedTds[0].getBoundingClientRect().x;
+      boundingBox.y = selectedTds[0].getBoundingClientRect().y;
+      boundingBox.width = boundingBox.right - boundingBox.left;
+      boundingBox.height = boundingBox.bottom - boundingBox.top;
+    }
+
+    return boundingBox;
+  }
+
+  getBoundingBoxByComputeBounds(type: string) {
+    const { top, left, right, bottom } = this.getComputeBounds(type);
+    const boundingBox: BoundingBoxRect = {
+      isBoundingRect: true,
+      left: left,
+      right: right,
+      bottom: bottom,
+      top: top,
+      width: right - left,
+      height: bottom - top,
+      x: 0,
+      y: 0,
+    }
+    return boundingBox;
+  }
 
   updatePropertiesForm(container: HTMLElement, type: string) {
     container.classList.remove('ql-table-triangle-none');
-    const { height, width } = container.getBoundingClientRect();
     const quillContainer = this.tableMenus.quill.container;
     const containerBounds = getCorrectBounds(quillContainer);
-    const { top, left, right, bottom } = this.getComputeBounds(type);
-    const { viewHeight } = this.getViewportSize();
-    let correctTop = bottom + 10;
-    let correctLeft = (left + right - width) >> 1;
+    const { height, width } = container.getBoundingClientRect();
 
-    console.log('BLA')
-    if (correctTop + containerBounds.top + height > viewHeight) {
-      correctTop = top - height - 10;
-      if (correctTop < 0) {
-        correctTop = (containerBounds.height - height) >> 1;
-        container.classList.add('ql-table-triangle-none');
-      } else {
-        container.classList.add('ql-table-triangle-up');
-        container.classList.remove('ql-table-triangle-down');
-      }
-    } else {
-      container.classList.add('ql-table-triangle-down');
-      container.classList.remove('ql-table-triangle-up');
-    }
-    if (correctLeft < containerBounds.left) {
-      correctLeft = 0;
-      container.classList.add('ql-table-triangle-none');
-    } else if (correctLeft + width > containerBounds.right) {
-      correctLeft = containerBounds.right - width;
-      container.classList.add('ql-table-triangle-none');
-    }
+    const selectionBounds = this.getBoundingBoxMeridian();
+    console.log(selectionBounds)
+    const { top, left, right, bottom } = this.getComputeBounds(type);
+    let boundingBox: BoundingBoxRect = this.getBoundingBoxByComputeBounds(type);
+    let correctLeft = this.getCorrectLeft(container, containerBounds, boundingBox, width);
+    let correctTop = this.getCorrectTop(container, containerBounds, height);
+
+    // this.getCorrectTop(container, containerBounds)
+
+    // let correctTop = bottom + 10;
+    // let correctLeft = (left + right - width) >> 1;
+    // if (correctTop + containerBounds.top + height > viewHeight) {
+    //   correctTop = top - height - 10;
+    //   if (correctTop < 0) {
+    //     correctTop = (containerBounds.height - height) >> 1;
+    //     container.classList.add('ql-table-triangle-none');
+    //   } else {
+    //     container.classList.add('ql-table-triangle-up');
+    //     container.classList.remove('ql-table-triangle-down');
+    //   }
+    // } else {
+    //   container.classList.add('ql-table-triangle-down');
+    //   container.classList.remove('ql-table-triangle-up');
+    // }
+
+    // if (correctLeft < containerBounds.left) {
+    //   correctLeft = 0;
+    //   container.classList.add('ql-table-triangle-none');
+    // } else if (correctLeft + width > containerBounds.right) {
+    //   correctLeft = containerBounds.right - width;
+    //   container.classList.add('ql-table-triangle-none');
+    // }
+
     setElementProperty(container, {
       left: `${correctLeft}px`,
       top: `${correctTop}px`

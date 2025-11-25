@@ -1141,7 +1141,7 @@ class TableMenus {
         return correctLeft;
     }
 
-    getCorrectTop(tableBounds: CorrectBound, containerBounds: CorrectBound, boundingBox: BoundingBoxRect, computedStyle: CSSStyleDeclaration, height: number) {
+    getCorrectTop(boundingBox: BoundingBoxRect, computedStyle: CSSStyleDeclaration, height: number) {
         const screenHeight = window.screen.availHeight;
         const isTooltipBottom = (screenHeight / 2) > boundingBox.y;
         let correctTop = (boundingBox.top - height - 10);
@@ -1205,7 +1205,7 @@ class TableMenus {
 
         requestAnimationFrame(() => {
             this.root.classList.remove('ql-table-triangle-none');
-            const [tableBounds, containerBounds] = this.getCorrectBounds(table);
+            const [containerBounds] = this.getCorrectBounds(table);
             // const {left, right, top, bottom} = tableBounds;
             const {height, width} = this.root.getBoundingClientRect();
 
@@ -1239,7 +1239,7 @@ class TableMenus {
             }*/
 
             const correctLeft = this.getCorrectLeft(containerBounds, selectionBounds, width);
-            const correctTop = this.getCorrectTop(tableBounds, containerBounds, selectionBounds, computedStyle, height);
+            const correctTop = this.getCorrectTop(selectionBounds, computedStyle, height);
 
             setElementProperty(this.root, {
                 left: `${correctLeft}px`,
