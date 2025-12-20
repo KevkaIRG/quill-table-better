@@ -43,14 +43,16 @@ class TableToolbar extends Toolbar {
       return;
     }
     const eventName = input.tagName === 'SELECT' ? 'change' : 'click';
-    input.addEventListener(eventName, (e) => {
-      const { cellSelection } = this.getTableBetter();
-      if (cellSelection?.selectedTds?.length > 1) {
-        this.cellSelectionAttach(input, format, e, cellSelection);
-      } else {
-        this.toolbarAttach(input, format, e);
-      }
-    });
+    try {
+      input.addEventListener(eventName, (e) => {
+        const { cellSelection } = this.getTableBetter();
+        if (cellSelection?.selectedTds?.length > 1) {
+          this.cellSelectionAttach(input, format, e, cellSelection);
+        } else {
+          this.toolbarAttach(input, format, e);
+        }
+      });
+    } catch {}
     this.controls.push([format, input]);
   }
 
