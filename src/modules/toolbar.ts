@@ -45,11 +45,13 @@ class TableToolbar extends Toolbar {
     const eventName = input.tagName === 'SELECT' ? 'change' : 'click';
     try {
       input.addEventListener(eventName, (e) => {
-        const { cellSelection } = this.getTableBetter();
-        if (cellSelection?.selectedTds?.length > 1) {
-          this.cellSelectionAttach(input, format, e, cellSelection);
-        } else {
-          this.toolbarAttach(input, format, e);
+        if (this.getTableBetter() && this.getTableBetter().cellSelection) {
+          const { cellSelection } = this.getTableBetter();
+          if (cellSelection?.selectedTds?.length > 1) {
+            this.cellSelectionAttach(input, format, e, cellSelection);
+          } else {
+            this.toolbarAttach(input, format, e);
+          }
         }
       });
     } catch {}
