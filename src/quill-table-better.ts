@@ -377,12 +377,12 @@ function makeCellBlockHandler(key: string) {
             const [nextLine] = this.quill.getLine(range.index + 1);
             const nextLineText = nextLine?.domNode.innerHTML;
             const {offset, suffix} = context;
-            console.log('lineText', lineText, 'nextLineText', nextLineText, 'offset', offset, 'suffix', suffix)
+            console.log('lineText', lineText, 'nextLineText', nextLineText, 'offset', offset, 'suffix', suffix, 'linenext', line.next, line.prev)
             if (offset === 0 && !line.prev && (lineText === '' || lineText === '<br>')) return false;
             if (offset === 0 && !line.prev && key === 'Backspace') return false;
             const blotName = line.prev?.statics.blotName;
 
-            if (offset !== 0 && ((nextLineText === '' || nextLineText === '<br>') && line.next === null) && key === 'Delete') {
+            if (offset !== 0 && (((nextLineText === '' || nextLineText === '<br>') && line.next === null) || (!line.next && lineText !== nextLineText)) && key === 'Delete') {
                 return false;
             }
             if (offset === 0 && lineText === '' && (blotName === ListContainer.blotName || blotName === TableCellBlock.blotName || blotName === TableHeader.blotName)) {
