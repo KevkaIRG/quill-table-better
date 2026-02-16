@@ -377,6 +377,7 @@ function makeCellBlockHandler(key: string) {
             const [nextLine] = this.quill.getLine(range.index + 1);
             const nextLineText = nextLine?.domNode.innerHTML;
             const {offset, suffix} = context;
+            console.log('lineText', lineText, 'nextLineText', nextLineText, 'offset', offset, 'suffix', suffix)
             if (offset === 0 && !line.prev && (lineText === '' || lineText === '<br>')) return false;
             if (offset === 0 && !line.prev && key === 'Backspace') return false;
             const blotName = line.prev?.statics.blotName;
@@ -388,9 +389,9 @@ function makeCellBlockHandler(key: string) {
                 return removeLine.call(this, line, range);
             }
 
-            if (offset !== 0 && !suffix && key === 'Delete') {
-                return false;
-            }
+            // if (offset !== 0 && !suffix && key === 'Delete') {
+            //     return false;
+            // }
             return true;
         }
     }
